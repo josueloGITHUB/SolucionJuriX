@@ -31,15 +31,20 @@ public class DespachoController : ControllerBase
             {
                 listaDespachoDTO.Add(new DespachoDTO
                 {
-
+                    DespachoId = item.DespachoId,
+                    Nombre = item.Nombre,
+                    Direccion = item.Direccion
                 });
             }
+            responseApi.EsCorrecto = true;
+            responseApi.Valor = listaDespachoDTO;
         }
         catch (Exception ex)
         {
-
-            throw;
+            responseApi.EsCorrecto = false;
+            responseApi.Mensaje = ex.Message;
         }
+        return Ok(responseApi);
     }
 }
 

@@ -15,7 +15,7 @@ public partial class Abogado
 
     public virtual ICollection<Caso> Casos { get; set; } = new List<Caso>();
 
-    public virtual Despacho? Despacho { get; set; }
+    public virtual Despacho? Despacho { get; set; } = null;
 
     public virtual ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
 }
