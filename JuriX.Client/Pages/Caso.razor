@@ -1,0 +1,112 @@
+﻿@page "/caso"
+@page "/caso/{idCasoEditar:int}"
+
+@using JuriX.Shared;
+@using JuriX.Client.Services;
+
+@inject IAbogadoService abogadoService;
+@inject IClienteService clienteService;
+@inject ICasoService casoService;
+@inject NavigationManager navegacion;
+
+<h3>@titulo</h3>
+
+<EditForm Model="caso" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="mb-3">
+        <label class="form-label">Fecha del Caso</label>
+        <InputDate class="form-control" @bind-Value="caso.Fecha"></InputDate>
+        <ValidationMessage For="@(() => caso.Fecha )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Cliente</label>
+        <InputSelect class="form-select" @bind-Value="caso.ClienteId">
+            <option value="0">-- Seleccionar --</option>
+            @foreach (var item in listaCliente)
+            {
+                <option value="@item.ClienteId">@item.Nombre</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => caso.ClienteId )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Tipo de Caso</label>
+        <InputText class="form-control" @bind-Value="caso.TipoCaso"></InputText>
+        <ValidationMessage For="@(() => caso.TipoCaso )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Descripcion</label>
+        <InputText class="form-control" @bind-Value="caso.Descripcion"></InputText>
+        <ValidationMessage For="@(() => caso.Descripcion )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Abogado Asignado</label>
+        <InputSelect class="form-select" @bind-Value="caso.AbogadoAsignadoId">
+            <option value="0">-- Seleccionar --</option>
+            @foreach (var item in listaAbogado)
+            {
+                <option value="@item.AbogadoId">@item.Nombre</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => caso.AbogadoAsignadoId )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Estado</label>
+        <InputSelect class="form-control" @bind-Value="caso.Estado">
+            <option value="0">-- Seleccionar --</option>
+            <option value="Abierto">Abierto</option>
+            <option value="Cerrado">Cerrado</option>
+        </InputSelect>
+        <ValidationMessage For="@(() => caso.Estado )"></ValidationMessage>
+    </div>
+
+    <button class="btn btn-primary" type="submit">
+        @btnTexto
+    </button>
+
+    <a class="btn btn-warning" href="casos">Volver</a>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int idCasoEditar { get; set; } = 0;
+
+    string titulo = string.Empty;
+
+    string btnTexto = string.Empty;
+
+    CasoDTO caso = new CasoDTO();
+    List<AbogadoDTO> listaAbogado = new List<AbogadoDTO>();
+    List<ClienteDTO> listaCliente = new List<ClienteDTO>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (idCasoEditar != 0)
+        {
+            caso = await casoService.Buscar(idCasoEditar);
+            btnTexto = "Actualizar Caso";
+            titulo = "Editar Caso";
+        }
+        else
+        {
+            btnTexto = "Guardar Caso";
+            titulo = "Nuevo Caso";
+        }
+        listaAbogado = await abogadoService.Lista();
+        listaCliente = await clienteService.Lista();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        int idDevuelto = 0;
+        if (idCasoEditar == 0)
+            idDevuelto = await casoService.Guardar(caso);
+        else
+            idDevuelto = await casoService.Editar(caso);
+
+        if (idDevuelto != 0)
+            navegacion.NavigateTo("/casos");
+    }
+}

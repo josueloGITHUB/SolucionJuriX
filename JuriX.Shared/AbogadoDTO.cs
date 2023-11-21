@@ -14,7 +14,7 @@ public class AbogadoDTO
     public string? Nombre { get; set; }
     [Required(ErrorMessage = "El campo {0} es requerido.")]
     public string? Especialidad { get; set; }
-    [Required]
+    [Required(ErrorMessage = "El campo Despacho es requerido")]
     [Range(1, int.MaxValue,ErrorMessage = "El campo {0} es requerido.")]
     public int? DespachoId { get; set; }
 

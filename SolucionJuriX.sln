@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JuriX.Server", "JuriX.Server\JuriX.Server.csproj", "{E552CAF3-BC42-49CB-8249-A9F9A77A87E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JuriX.Server", "JuriX.Server\JuriX.Server.csproj", "{E552CAF3-BC42-49CB-8249-A9F9A77A87E4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JuriX.Shared", "JuriX.Shared\JuriX.Shared.csproj", "{48F0418F-EE38-4C1F-B4A9-0EBF146872AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JuriX.Shared", "JuriX.Shared\JuriX.Shared.csproj", "{48F0418F-EE38-4C1F-B4A9-0EBF146872AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JuriX.Client", "JuriX.Client\JuriX.Client.csproj", "{CA28AC8A-0200-4F67-A996-A853C0B9487D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{48F0418F-EE38-4C1F-B4A9-0EBF146872AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{48F0418F-EE38-4C1F-B4A9-0EBF146872AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{48F0418F-EE38-4C1F-B4A9-0EBF146872AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CA28AC8A-0200-4F67-A996-A853C0B9487D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA28AC8A-0200-4F67-A996-A853C0B9487D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CA28AC8A-0200-4F67-A996-A853C0B9487D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA28AC8A-0200-4F67-A996-A853C0B9487D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

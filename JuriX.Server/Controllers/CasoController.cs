@@ -11,11 +11,11 @@ namespace JuriX.Server.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AbogadoController : ControllerBase
+    public class CasoController : ControllerBase
     {
         private readonly JurixContext _dbContext;
 
-        public AbogadoController(JurixContext dbContext)
+        public CasoController(JurixContext dbContext)
         {
             _dbContext = dbContext;
         }
@@ -24,28 +24,39 @@ namespace JuriX.Server.Controllers
         [Route("Lista")]
         public async Task<IActionResult> Lista()
         {
-            var responseApi = new ResponseApi<List<AbogadoDTO>>();
-            var listaAbogadoDTO = new List<AbogadoDTO>();
+            var responseApi = new ResponseApi<List<CasoDTO>>();
+            var listaCasoDTO = new List<CasoDTO>();
 
             try
             {
-                foreach (var item in await _dbContext.Abogados.Include(d => d.Despacho).ToListAsync())
+                foreach (var item in await _dbContext.Casos.Include(a => a.AbogadoAsignado).Include(c => c.Cliente).ToListAsync())
                 {
-                    listaAbogadoDTO.Add(new AbogadoDTO
+                    listaCasoDTO.Add(new CasoDTO
                     {
-                        AbogadoId = item.AbogadoId,
-                        Nombre = item.Nombre,
-                        Especialidad = item.Especialidad,
-                        Despacho = new DespachoDTO
+                        CasoId = item.CasoId,
+                        Fecha = item.Fecha,
+                        TipoCaso = item.TipoCaso,
+                        Descripcion = item.Descripcion,
+                        Estado = item.Estado,
+                        Cliente = new ClienteDTO
                         {
-                            DespachoId = item.Despacho.DespachoId,
-                            Nombre = item.Despacho.Nombre,
-                            Direccion = item.Despacho.Direccion
+                            ClienteId = item.Cliente.ClienteId,
+                            Nombre = item.Cliente.Nombre,
+                            Descripcion = item.Cliente.Descripcion
+                        },
+                        AbogadoAsignado = new AbogadoDTO
+                        {
+                            AbogadoId = item.AbogadoAsignado.AbogadoId,
+                            Nombre = item.AbogadoAsignado.Nombre,
+                            Especialidad = item.AbogadoAsignado.Especialidad,
+                            DespachoId = item.AbogadoAsignado.DespachoId
+
                         }
+                        
                     });
                 }
                 responseApi.EsCorrecto = true;
-                responseApi.Valor = listaAbogadoDTO;
+                responseApi.Valor = listaCasoDTO;
             }
             catch (Exception ex)
             {
@@ -59,21 +70,23 @@ namespace JuriX.Server.Controllers
         [Route("Buscar/{id}")]
         public async Task<IActionResult> Buscar(int id)
         {
-            var responseApi = new ResponseApi<AbogadoDTO>();
-            var AbogadoDTO = new AbogadoDTO();
+            var responseApi = new ResponseApi<CasoDTO>();
+            var CasoDTO = new CasoDTO();
 
             try
             {
-                var dbAbogado = await _dbContext.Abogados.FirstOrDefaultAsync(x => x.AbogadoId == id);
-                
-                if(dbAbogado != null)
+                var dbCaso = await _dbContext.Casos.FirstOrDefaultAsync(x => x.CasoId == id);
+
+                if (dbCaso != null)
                 {
-                    AbogadoDTO.AbogadoId = dbAbogado.AbogadoId;
-                    AbogadoDTO.Nombre = dbAbogado.Nombre;
-                    AbogadoDTO.Especialidad = dbAbogado.Especialidad;
+                    CasoDTO.CasoId = dbCaso.CasoId;
+                    CasoDTO.Fecha = dbCaso.Fecha;
+                    CasoDTO.TipoCaso = dbCaso.TipoCaso;
+                    CasoDTO.Descripcion = dbCaso.Descripcion;
+                    CasoDTO.Estado = dbCaso.Estado;
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = AbogadoDTO;
+                    responseApi.Valor = CasoDTO;
                 }
                 else
                 {
@@ -93,36 +106,35 @@ namespace JuriX.Server.Controllers
 
         [HttpPost]
         [Route("Guardar")]
-        public async Task<IActionResult> Guardar(AbogadoDTO abogado)
+        public async Task<IActionResult> Guardar(CasoDTO caso)
         {
             var responseApi = new ResponseApi<int>();
 
             try
             {
-                var dbAbogado = new Abogado
+                var dbCaso = new Caso
                 {
-                    Nombre = abogado.Nombre,
-                    Especialidad = abogado.Especialidad,
-                    DespachoId = abogado.DespachoId
+                    Fecha = caso.Fecha,
+                    ClienteId = caso.ClienteId,
+                    TipoCaso = caso.TipoCaso,
+                    Descripcion = caso.Descripcion,
+                    AbogadoAsignadoId = caso.AbogadoAsignadoId,
+                    Estado = caso.Estado
                 };
 
-                _dbContext.Abogados.Add(dbAbogado);
+                _dbContext.Casos.Add(dbCaso);
                 await _dbContext.SaveChangesAsync();
 
-                if (dbAbogado.AbogadoId != 0)
+                if (dbCaso.CasoId != 0)
                 {
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = dbAbogado.AbogadoId;
+                    responseApi.Valor = dbCaso.CasoId;
                 }
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "No guardado";  
+                    responseApi.Mensaje = "No guardado";
                 }
-
-               
-
-
             }
             catch (Exception ex)
             {
@@ -134,32 +146,35 @@ namespace JuriX.Server.Controllers
 
         [HttpPut]
         [Route("Editar/{id}")]
-        public async Task<IActionResult> Editar(AbogadoDTO abogado, int id)
+        public async Task<IActionResult> Editar(CasoDTO caso, int id)
         {
             var responseApi = new ResponseApi<int>();
 
             try
             {
 
-                var dbAbogado = await _dbContext.Abogados.FirstOrDefaultAsync(e => e.AbogadoId == id);
+                var dbCaso = await _dbContext.Casos.FirstOrDefaultAsync(e => e.CasoId == id);
 
 
-                if (dbAbogado != null)
+                if (dbCaso != null)
                 {
-                    dbAbogado.Nombre = abogado.Nombre;
-                    dbAbogado.Especialidad = abogado.Especialidad;
-                    dbAbogado.DespachoId = abogado.DespachoId; 
+                    dbCaso.Fecha = caso.Fecha;
+                    dbCaso.ClienteId = caso.ClienteId;
+                    dbCaso.TipoCaso = caso.TipoCaso;
+                    dbCaso.Descripcion = caso.Descripcion;
+                    dbCaso.AbogadoAsignadoId = caso.AbogadoAsignadoId;
+                    dbCaso.Estado = caso.Estado;
 
-                    _dbContext.Abogados.Update(dbAbogado);
+                    _dbContext.Casos.Update(dbCaso);
                     await _dbContext.SaveChangesAsync();
 
                     responseApi.EsCorrecto = true;
-                    responseApi.Valor = dbAbogado.AbogadoId;
+                    responseApi.Valor = dbCaso.CasoId;
                 }
                 else
                 {
                     responseApi.EsCorrecto = false;
-                    responseApi.Mensaje = "Abogado no encontrado";
+                    responseApi.Mensaje = "Caso no encontrado";
                 }
 
             }
@@ -180,13 +195,13 @@ namespace JuriX.Server.Controllers
             try
             {
 
-                var dbAbogado = await _dbContext.Abogados.FirstOrDefaultAsync(e => e.AbogadoId == id);
+                var dbCliente = await _dbContext.Clientes.FirstOrDefaultAsync(e => e.ClienteId == id);
 
 
-                if (dbAbogado != null)
+                if (dbCliente != null)
                 {
 
-                    _dbContext.Abogados.Remove(dbAbogado);
+                    _dbContext.Clientes.Remove(dbCliente);
                     await _dbContext.SaveChangesAsync();
 
                     responseApi.EsCorrecto = true;
@@ -206,5 +221,4 @@ namespace JuriX.Server.Controllers
             return Ok(responseApi);
         }
     }
-
 }

@@ -1,0 +1,71 @@
+﻿@page "/cliente";
+@page "/cliente/{idClienteEditar:int}";
+
+@using JuriX.Shared;
+@using JuriX.Client.Services;
+
+@inject IClienteService clienteService;
+@inject NavigationManager navegacion;
+
+<h3>@titulo</h3>
+<EditForm Model="cliente" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre Completo</label>
+        <InputText class="form-control" @bind-Value="cliente.Nombre"></InputText>
+        <ValidationMessage For="@(() => cliente.Nombre )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Descripcion</label>
+        <InputText class="form-control" @bind-Value="cliente.Descripcion"></InputText>
+        <ValidationMessage For="@(() => cliente.Descripcion )"></ValidationMessage>
+    </div>
+
+    <button class="btn btn-primary" type="submit">
+        @btnTexto
+    </button>
+
+    <a class="btn btn-warning" href="abogados">Volver</a>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int idClienteEditar { get; set; } = 0;
+
+    string titulo = string.Empty;
+
+    string btnTexto = string.Empty;
+
+    ClienteDTO cliente = new ClienteDTO();
+    List<ClienteDTO> listaCliente = new List<ClienteDTO>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (idClienteEditar != 0)
+        {
+            cliente = await clienteService.Buscar(idClienteEditar);
+            btnTexto = "Actualizar Cliente";
+            titulo = "Editar Cliente";
+        }
+        else
+        {
+            btnTexto = "Guardar Cliente";
+            titulo = "Nuevo Cliente";
+        }
+        listaCliente = await clienteService.Lista();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        int idDevuelto = 0;
+        if (idClienteEditar == 0)
+            idDevuelto = await clienteService.Guardar(cliente);
+        else
+            idDevuelto = await clienteService.Editar(cliente);
+
+        if (idDevuelto != 0)
+            navegacion.NavigateTo("/clientes");
+    }
+}

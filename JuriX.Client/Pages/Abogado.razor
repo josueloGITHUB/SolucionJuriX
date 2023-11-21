@@ -1,0 +1,85 @@
+﻿@page "/abogado"
+@page "/abogado/{idAbogadoEditar:int}"
+
+@using JuriX.Shared;
+@using JuriX.Client.Services;
+
+@inject IAbogadoService abogadoService;
+@inject IDespachoService despachoService;
+@inject NavigationManager navegacion;   
+
+<h3>@titulo</h3>
+<EditForm Model="abogado" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre Completo</label>
+        <InputText class="form-control" @bind-Value="abogado.Nombre"></InputText>
+        <ValidationMessage For="@(() => abogado.Nombre )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Despacho</label>
+        <InputSelect class="form-select" @bind-Value="abogado.DespachoId">
+           <option value="0">-- Seleccionar --</option>
+            @foreach(var item in listaDespacho)
+            {
+                <option value="@item.DespachoId">@item.Nombre</option>
+            }
+        </InputSelect>
+        <ValidationMessage For="@(() => abogado.DespachoId )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Especialidad</label>
+        <InputText class="form-control" @bind-Value="abogado.Especialidad"></InputText>
+        <ValidationMessage For="@(() => abogado.Especialidad )"></ValidationMessage>
+    </div>
+
+    <button class="btn btn-primary" type="submit">
+        @btnTexto
+    </button>
+
+    <a class="btn btn-warning" href="abogados">Volver</a>
+
+</EditForm>
+
+@code {
+    [Parameter]
+    public int idAbogadoEditar { get; set; } = 0;
+
+    string titulo = string.Empty;
+
+    string btnTexto = string.Empty;
+
+    AbogadoDTO abogado = new AbogadoDTO();
+    List<DespachoDTO> listaDespacho = new List<DespachoDTO>();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(idAbogadoEditar != 0)
+        {
+            abogado = await abogadoService.Buscar(idAbogadoEditar);
+            btnTexto = "Actualizar Abogado";
+            titulo = "Editar Abogado";
+        }
+        else
+        {
+            btnTexto = "Guardar Abogado";
+            titulo = "Nuevo Abogado";
+        }
+        listaDespacho = await despachoService.Lista();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        int idDevuelto = 0;
+        if (idAbogadoEditar == 0)
+            idDevuelto = await abogadoService.Guardar(abogado);
+        else
+            idDevuelto = await abogadoService.Editar(abogado);
+
+        if (idDevuelto != 0)
+            navegacion.NavigateTo("/abogados");
+    }
+
+}

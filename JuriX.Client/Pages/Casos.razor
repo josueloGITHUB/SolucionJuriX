@@ -1,0 +1,85 @@
+﻿@page "/casos"
+
+@using JuriX.Shared;
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using JuriX.Client.Services;
+
+@inject SweetAlertService Swal;
+@inject ICasoService casoService;
+
+<h3>Casos</h3>
+
+<a class="btn btn-success btn-sm mb-3" href="caso">Nuevo Caso</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Cliente</th>
+            <th>Tipo de Caso</th>
+            <th>Descripcion</th>
+            <th>Abogado Asignado</th>
+            <th>Estado</th>
+            <th>Opciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (listaCaso == null)
+        {
+            <tr>
+                <td colspan="4" align="center">
+                    <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif">
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach(var item in listaCaso)
+            {
+                <tr>
+                    <td>@item.CasoId</td>
+                    <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                    <td>@item.Cliente.Nombre</td>
+                    <td>@item.TipoCaso</td>
+                    <td>@item.Descripcion</td>
+                    <td>@item.AbogadoAsignado.Nombre</td>
+                    <td>@item.Estado</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="caso/@item.CasoId">
+                            <i class="oi oi-pencil"></i>
+                        </a>
+                        <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.CasoId))">
+                            <i class="oi oi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    List<CasoDTO>? listaCaso = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaCaso = await casoService.Lista();
+    }
+    private async Task Eliminar(int id)
+    {
+        var resultado = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminar Caso",
+                Text = "Deseas eliminar el caso?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            var eliminado = await casoService.Eliminar(id);
+            if (eliminado)
+                listaCaso = listaCaso!.FindAll(e => e.CasoId != id);
+        }
+    }
+}

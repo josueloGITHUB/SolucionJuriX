@@ -1,0 +1,81 @@
+﻿@page "/abogados"
+
+@using JuriX.Shared;
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using JuriX.Client.Services;
+
+@inject SweetAlertService Swal;
+@inject IAbogadoService abogadoService;
+
+<h3>Abogados</h3>
+
+<a class="btn btn-success btn-sm mb-3" href="abogado">Nuevo Abogado</a>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Especialidad</th>
+            <th>Despacho</th>
+            <th>Opciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if(listaAbogado == null)
+        {
+            <tr>
+                <td colspan="4" align="center">
+                    <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif">
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach(var item in listaAbogado)
+            {
+                <tr>
+                    <td>@item.Nombre</td>
+                    <td>@item.Especialidad</td>
+                    <td>@item.Despacho.Nombre</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="abogado/@item.AbogadoId">
+                            <i class="oi oi-pencil"></i>
+                        </a>
+                        <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.AbogadoId))">
+                            <i class="oi oi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+
+
+
+    </tbody>
+</table>
+
+@code {
+    List<AbogadoDTO>? listaAbogado = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaAbogado = await abogadoService.Lista();
+    }
+
+    private async Task Eliminar(int id)
+    {
+        var resultado = await Swal.FireAsync(new SweetAlertOptions
+        {
+            Title = "Eliminar Abogado",    
+            Text =  "Deseas eliminar el abogado?",
+            Icon = SweetAlertIcon.Question,
+            ShowCancelButton = true
+        });
+
+        if (resultado.IsConfirmed)
+        {
+            var eliminado = await abogadoService.Eliminar(id);
+            if (eliminado)
+                listaAbogado = listaAbogado!.FindAll(e => e.AbogadoId != id);
+        }
+    }
+}

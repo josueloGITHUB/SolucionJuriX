@@ -1,0 +1,77 @@
+﻿@page "/despachos"
+
+@using JuriX.Shared;
+@using CurrieTechnologies.Razor.SweetAlert2;
+@using JuriX.Client.Services;
+
+@inject SweetAlertService Swal;
+@inject IDespachoService despachoService;
+
+<h3>Despachos</h3>
+
+<a class="btn btn-success btn-sm mb-3" href="despacho">Nuevo Despacho</a>
+<table class="table">
+    <thead>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Direccion</th>
+        <th>Opciones</th>
+    </thead>
+    <tbody>
+        @if(listaDespacho == null)
+        {
+            <tr>
+                <td colspan="4" align="center">
+                    <img style="width:50px" src="https://media.tenor.com/On7kvXhzml4AAAAj/loading-gif.gif">
+                </td>
+            </tr>
+        }
+        else
+        {
+            @foreach(var item in listaDespacho)
+            {
+                <tr>
+                    <td>@item.DespachoId</td>
+                    <td>@item.Nombre</td>
+                    <td>@item.Direccion</td>
+                    <td>
+                        <a class="btn btn-primary btn-sm" href="despacho/@item.DespachoId">
+                            <i class="oi oi-pencil"></i>
+                        </a>
+                        <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.DespachoId))">
+                            <i class="oi oi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+
+@code {
+    List<DespachoDTO>? listaDespacho = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        listaDespacho = await despachoService.Lista();
+    }
+
+    private async Task Eliminar(int id)
+    {
+        var resultado = await Swal.FireAsync(new SweetAlertOptions
+            {
+                Title = "Eliminar Despacho",
+                Text = "Deseas eliminar el Despacho?",
+                Icon = SweetAlertIcon.Question,
+                ShowCancelButton = true
+            });
+
+        if (resultado.IsConfirmed)
+        {
+            var eliminado = await despachoService.Eliminar(id);
+            if (eliminado)
+                listaDespacho = listaDespacho!.FindAll(e => e.DespachoId != id);
+        }
+    }
+}

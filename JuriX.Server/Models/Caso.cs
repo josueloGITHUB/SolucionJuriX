@@ -7,7 +7,7 @@ public partial class Caso
 {
     public int CasoId { get; set; }
 
-    public DateTime? Fecha { get; set; }
+    public DateTime Fecha { get; set; }
 
     public int? ClienteId { get; set; }
 

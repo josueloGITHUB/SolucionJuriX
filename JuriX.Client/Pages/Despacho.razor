@@ -1,0 +1,71 @@
+﻿@page "/despacho"
+@page "/despacho/{idDespachoEditar:int}"
+
+@using JuriX.Shared;
+@using JuriX.Client.Services;
+
+@inject IDespachoService despachoService;
+@inject NavigationManager navegacion;
+
+<h3>@titulo</h3>
+<EditForm Model="despacho" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator></DataAnnotationsValidator>
+
+    <div class="mb-3">
+        <label class="form-label">Nombre Despacho</label>
+        <InputText class="form-control" @bind-Value="despacho.Nombre"></InputText>
+        <ValidationMessage For="@(() => despacho.Nombre )"></ValidationMessage>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Direccion</label>
+        <InputText class="form-control" @bind-Value="despacho.Direccion"></InputText>
+        <ValidationMessage For="@(() => despacho.Direccion )"></ValidationMessage>
+    </div>
+
+
+    <button class="btn btn-primary" type="submit">
+        @btnTexto
+    </button>
+
+    <a class="btn btn-warning" href="despachos">Volver</a>
+</EditForm>
+
+@code {
+    [Parameter]
+    public int idDespachoEditar { get; set; } = 0;
+
+    string titulo = string.Empty;
+
+    string btnTexto = string.Empty;
+
+    DespachoDTO despacho = new DespachoDTO();
+    List<DespachoDTO> listaDespacho = new List<DespachoDTO>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (idDespachoEditar != 0)
+        {
+            despacho = await despachoService.Buscar(idDespachoEditar);
+            btnTexto = "Actualizar Despacho";
+            titulo = "Editar Despacho";
+        }
+        else
+        {
+            btnTexto = "Guardar Despacho";
+            titulo = "Nuevo Despacho";
+        }
+        listaDespacho = await despachoService.Lista();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        int idDevuelto = 0;
+        if (idDespachoEditar == 0)
+            idDevuelto = await despachoService.Guardar(despacho);
+        else
+            idDevuelto = await despachoService.Editar(despacho);
+
+        if (idDevuelto != 0)
+            navegacion.NavigateTo("/despachos");
+    }
+}
