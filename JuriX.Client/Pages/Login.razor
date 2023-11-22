@@ -1,0 +1,75 @@
+﻿@page "/";
+@layout LoginLayout
+
+@inject HttpClient httpClient;
+@using JuriX.Client.Extensiones;
+@using JuriX.Shared;
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider autenticacionProvider
+@inject NavigationManager navManager
+
+<PageTitle>Login</PageTitle>
+
+<style>
+     body {
+         background-color: #333; /* Fondo oscuro para toda la página */
+         color: #fff; /* Color de texto claro para contrastar con el fondo oscuro */
+     }
+
+     .login-container {
+         background-color: #fff; /* Fondo blanco para el contenedor del formulario */
+         color: #000; /* Color de texto negro */
+         padding: 20px; /* Ajusta el espaciado interno según sea necesario */
+         border-radius: 8px; /* Borde redondeado para suavizar las esquinas */
+         text-align: center; /* Centra el contenido del contenedor */
+     }
+
+     .login-logo {
+         max-width: 50%; /* La imagen no debe exceder el ancho del contenedor */
+         height: auto; /* Mantiene la relación de aspecto de la imagen */
+         margin-bottom: 15px; /* Espaciado inferior para separar la imagen de los demás elementos */
+     }
+</style>
+
+<div class="row mt-5">
+    <div class="col-lg-4 offset-lg-4 border login-container">
+        <div>
+            <img src="https://media.tenor.com/pN2wo5K2V2gAAAAC/jurix.gif" class="img-fluid mb-3 login-logo" />
+        </div>
+
+        <div class="mb-3 text-center">
+            <h3>LOGIN</h3>
+        </div>
+
+        <div class="mb-3">
+            <label>Correo</label>
+            <input @bind="login.Correo" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label>Contraseña</label>
+            <input @bind="login.Clave" type="password" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <button @onclick="IniciarSesion" class="btn btn-primary">Login</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    private LoginDTO login = new LoginDTO();
+
+    private async Task IniciarSesion()
+    {
+        var loginResponse = await httpClient.PostAsJsonAsync<LoginDTO>("/api/Usuario/Login", login);
+        if (loginResponse.IsSuccessStatusCode)
+        {
+            var sesionUsuario = await loginResponse.Content.ReadFromJsonAsync<SesionDTO>();
+            var autenticacionExt = (AutenticacionExtension)autenticacionProvider;
+            await autenticacionExt.ActualizarEstadoAutenticacion(sesionUsuario);
+
+            navManager.NavigateTo("/Index");
+        }
+    }
+}

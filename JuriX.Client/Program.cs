@@ -4,6 +4,10 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using JuriX.Client.Services;
 using CurrieTechnologies.Razor.SweetAlert2;
 
+using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+using JuriX.Client.Extensiones;
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
@@ -14,6 +18,10 @@ builder.Services.AddScoped<IDespachoService, DespachoService>();
 builder.Services.AddScoped<IAbogadoService, AbogadoService>();
 builder.Services.AddScoped<IClienteService, ClienteService>();
 builder.Services.AddScoped<ICasoService, CasoService>();
+
+builder.Services.AddBlazoredSessionStorage();
+builder.Services.AddScoped<AuthenticationStateProvider, AutenticacionExtension>();
+builder.Services.AddAuthorizationCore();
 
 builder.Services.AddSweetAlert2();
 

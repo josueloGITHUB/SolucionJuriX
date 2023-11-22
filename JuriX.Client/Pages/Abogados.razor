@@ -7,6 +7,11 @@
 @inject SweetAlertService Swal;
 @inject IAbogadoService abogadoService;
 
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Abogados</PageTitle>
+
+
 <h3>Abogados</h3>
 
 <a class="btn btn-success btn-sm mb-3" href="abogado">Nuevo Abogado</a>
@@ -16,7 +21,11 @@
             <th>Nombre</th>
             <th>Especialidad</th>
             <th>Despacho</th>
-            <th>Opciones</th>
+            <AuthorizeView Roles="Administrador">
+                <Authorized>
+                    <th>Opciones</th>
+                </Authorized>
+            </AuthorizeView>
         </tr>
     </thead>
     <tbody>
@@ -36,14 +45,19 @@
                     <td>@item.Nombre</td>
                     <td>@item.Especialidad</td>
                     <td>@item.Despacho.Nombre</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" href="abogado/@item.AbogadoId">
-                            <i class="oi oi-pencil"></i>
-                        </a>
-                        <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.AbogadoId))">
-                            <i class="oi oi-trash"></i>
-                        </button>
-                    </td>
+                    <AuthorizeView Roles="Administrador">
+                        <Authorized>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="abogado/@item.AbogadoId">
+                                    <i class="oi oi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.AbogadoId))">
+                                    <i class="oi oi-trash"></i>
+                                </button>
+                            </td>
+                        </Authorized>
+                    </AuthorizeView>
+
                 </tr>
             }
         }

@@ -7,6 +7,12 @@
 @inject SweetAlertService Swal;
 @inject ICasoService casoService;
 
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization;
+@attribute [Authorize]
+
+<PageTitle>Casos</PageTitle>
+
 <h3>Casos</h3>
 
 <a class="btn btn-success btn-sm mb-3" href="caso">Nuevo Caso</a>
@@ -20,7 +26,11 @@
             <th>Descripcion</th>
             <th>Abogado Asignado</th>
             <th>Estado</th>
-            <th>Opciones</th>
+            <AuthorizeView Roles="Administrador">
+                <Authorized>
+                    <th>Opciones</th>
+                </Authorized>
+            </AuthorizeView>
         </tr>
     </thead>
     <tbody>
@@ -44,14 +54,19 @@
                     <td>@item.Descripcion</td>
                     <td>@item.AbogadoAsignado.Nombre</td>
                     <td>@item.Estado</td>
-                    <td>
-                        <a class="btn btn-primary btn-sm" href="caso/@item.CasoId">
-                            <i class="oi oi-pencil"></i>
-                        </a>
-                        <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.CasoId))">
-                            <i class="oi oi-trash"></i>
-                        </button>
-                    </td>
+                    <AuthorizeView Roles="Administrador">
+                        <Authorized>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="caso/@item.CasoId">
+                                    <i class="oi oi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger btn-sm ms-2" @onclick="(() => Eliminar(item.CasoId))">
+                                    <i class="oi oi-trash"></i>
+                                </button>
+                            </td>
+                        </Authorized>
+                    </AuthorizeView>
+
                 </tr>
             }
         }
