@@ -15,7 +15,17 @@
 
 <h3>Casos</h3>
 
-<a class="btn btn-success btn-sm mb-3" href="caso">Nuevo Caso</a>
+
+<div>
+    <a class="btn btn-success btn-sm mb-3" href="caso">Nuevo Caso</a>
+    <a class="btn btn-danger btn-sm mb-3">Exportar PDF</a>
+
+
+
+    <input type="text" @bind="term" style="float: right" placeholder="Buscar por Cliente, Tipo de Caso, etc." />
+</div>
+
+
 <table class="table">
     <thead>
         <tr>
@@ -44,7 +54,7 @@
         }
         else
         {
-            @foreach(var item in listaCaso)
+            @foreach(var item in FiltrarCasos())
             {
                 <tr>
                     <td>@item.CasoId</td>
@@ -75,6 +85,7 @@
 
 @code {
     List<CasoDTO>? listaCaso = null;
+    string term = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -97,4 +108,27 @@
                 listaCaso = listaCaso!.FindAll(e => e.CasoId != id);
         }
     }
+
+    private List<CasoDTO> FiltrarCasos()
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            return listaCaso; //no hay nada, muestra todos los casos
+        }
+        else
+        {
+            // Filtra la lista de casos según el término de búsqueda en varios campos
+            return listaCaso
+                .Where(c =>
+                    c.Cliente.Nombre.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    c.TipoCaso.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    c.AbogadoAsignado.Nombre.Contains(term, StringComparison.OrdinalIgnoreCase)
+                    // Agrega más campos según tus necesidades
+                    )
+                .ToList();
+        }
+
+    }
+
 }
+
